@@ -1,4 +1,4 @@
 [submodule "CommonLibSSE-NG"]
 	path = CommonLibSSE-NG
-	url = https://github.com/alandtse/CommonLibSSE-NG.git
-	branch = ng
+	url = https://github.com/Vhodnoylogin/CommonLibSSE-NG.git
+	branch = fix/racemenu-latent-return-type

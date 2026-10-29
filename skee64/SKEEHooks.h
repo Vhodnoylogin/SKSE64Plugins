@@ -136,9 +136,9 @@ namespace SKEE
 		func(a_this, a_unk1);
 	}
 
-	inline void CopyFrom(RE::BSLightingShaderMaterial* a_this, RE::BSLightingShaderMaterial* a_other)
+	inline void CopyFrom(RE::BSLightingShaderMaterialBase* a_this, RE::BSLightingShaderMaterialBase* a_other)
 	{
-		static REL::Relocation<void (*)(RE::BSLightingShaderMaterial*, RE::BSLightingShaderMaterial*)> func{ REL::RelocationID(0, kID_CopyFrom) };
+		static REL::Relocation<void (*)(RE::BSLightingShaderMaterialBase*, RE::BSLightingShaderMaterialBase*)> func{ REL::RelocationID(0, kID_CopyFrom) };
 		func(a_this, a_other);
 	}
 

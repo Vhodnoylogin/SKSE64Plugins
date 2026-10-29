@@ -17,9 +17,7 @@
 #include "RE/M/MemoryManager.h"  // TES_HEAP_REDEFINE_NEW()
 #include "RE/V/Variable.h"       // RE::BSScript::Variable (== legacy VMValue)
 #include "SKSE/Interfaces.h"     // SKSE::SerializationInterface, ObjectInterface
-
-namespace SKSE
-{
+#include <string_view>
 
 // Tag type for the serialization constructor (legacy PapyrusObjects.h:17).
 struct SerializationTag {};
@@ -58,6 +56,7 @@ public:
 // (SKSE/Impl/PCH.h:648-657). These types live at global scope (to match SKSE's),
 // so make those names visible here for the macro expansion.
 using namespace std::literals;
+namespace stl = SKSE::stl;
 
 // A delay functor that resumes a latent Papyrus stack. Declared as a full class
 // (not vtable-only) so concrete functors can inherit from it and use StackId().
@@ -81,7 +80,7 @@ public:
 	}
 	bool Load(SKSE::SerializationInterface* a_intfc, std::uint32_t) override
 	{
-		return a_intfc->ReadRecordData(&stackId_, sizeof(stackId_)) > 0;
+		return a_intfc->ReadRecordData(&stackId_, sizeof(stackId_)) == sizeof(stackId_);
 	}
 
 	std::uint32_t StackId() const { return stackId_; }
@@ -92,17 +91,6 @@ public:
 
 protected:
 	std::uint32_t stackId_ = 0;
-};
-
-// The SKSE runtime's delay-functor manager. Only Enqueue is virtual in the real
-// class, so this vtable-only declaration matches slot 0. Retrieve the live
-// instance via SKSE::GetObjectInterface()->GetDelayFunctorManager() (non-const)
-// or SKSE::GetDelayFunctorManager() (const*).
-class SKSEDelayFunctorManager
-{
-public:
-	// Takes ownership of a_func. Runs it on the game thread.
-	virtual void Enqueue(ISKSEDelayFunctor* a_func, std::int32_t a_delayMS = 0) const = 0;
 };
 
 // Factory for an ISKSEObject (legacy PapyrusObjects.h). The object registry
@@ -132,13 +120,36 @@ public:
 	}
 };
 
+// The SKSE runtime's delay-functor manager. Only Enqueue is virtual in the real
+// class, so this vtable-only declaration matches slot 0. Retrieve the live
+// instance via SKSE::GetObjectInterface()->GetDelayFunctorManager() (non-const)
+// or SKSE::GetDelayFunctorManager() (const*).
+class SKSEDelayFunctorManager
+{
+public:
+	// Takes ownership of a_func. Runs it on the game thread.
+	virtual void Enqueue(ISKSEDelayFunctor* a_func, std::int32_t a_delayMS = 0) = 0;
+};
+
 // The SKSE runtime's object registry. Only RegisterFactory / GetFactoryByName
 // are virtual (legacy PapyrusObjects.h). Retrieve the live instance via
 // SKSE::GetObjectInterface()->GetObjectRegistry() or SKSE::GetObjectRegistry().
 class SKSEObjectRegistry
 {
 public:
-	virtual void RegisterFactory(ISKSEObjectFactory* a_factory) const = 0;
+	virtual void RegisterFactory(ISKSEObjectFactory* a_factory) = 0;
 	virtual const ISKSEObjectFactory* GetFactoryByName(const char* a_name) const = 0;
 };
+
+// Preserve consumer spelling while retaining the runtime's global RTTI names.
+namespace SKSE
+{
+using ::SerializationTag;
+using ::ISKSEObject;
+using ::ISKSEDelayFunctor;
+using ::LatentSKSEDelayFunctor;
+using ::ISKSEObjectFactory;
+using ::ConcreteSKSEObjectFactory;
+using ::SKSEDelayFunctorManager;
+using ::SKSEObjectRegistry;
 }

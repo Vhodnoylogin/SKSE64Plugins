@@ -1,5 +1,6 @@
 #include "SKEETasks.h"
 #include "SKEEDelayFunctors.h"
+#include "SKEESerialization.h"
 
 #include "RE/N/NiExtraData.h"
 #include "RE/A/Array.h"           // RE::BSScript::Array (legacy VMArray equiv)
